@@ -1,28 +1,282 @@
-<script>
-	export let name;
+<script lang="ts">
+	import TemperatureMenu from './TemperatureMenu.svelte';
+	import {fly} from 'svelte/transition';
+	import { probe1Name, 
+		probe1Target, 
+		probe2Name, 
+		probe2Target, 
+		probe3Name, 
+		probe3Target, 
+		probe4Name, 
+		probe4Target, 
+		chamberTarget } from './stores.ts';
+	import ProbeGrid from './ProbeGrid.svelte';
+	import { faFire, faBars } from '@fortawesome/free-solid-svg-icons';
+	import Icon from 'svelte-awesome';
+	import Tailwind from './Tailwind.svelte';
+	import type { Writable } from 'svelte/store';
+	import SettingsPanel from './SettingsPanel.svelte';
+
+	let showSettings = false;
+	let animateSettingsPanel = false;
+	let settingsPanelContainer: HTMLDivElement;
+	let movementEvent = false;
+	let settingsTimeout: NodeJS.Timeout;
+
+	let chamberTemp = 0;
+	let probe1Temp = 0;
+	let probe2Temp = 0;
+	let probe3Temp = 0;
+	let probe4Temp = 0;
+
+	export let cooking = false;
+	export let heating = false;
+	$: heating = chamberTemp < $chamberTarget;
+	$: cooking = probe1Temp < $probe1Target || probe2Temp < $probe2Target || probe3Temp < $probe3Target || probe4Temp < $probe4Target;
+	let cookPanel: HTMLDivElement;
+	let probe1Panel: HTMLDivElement;
+	let probe2Panel: HTMLDivElement;
+	let probe3Panel: HTMLDivElement;
+	let probe4Panel: HTMLDivElement;
+	let chamberPanel: HTMLDivElement;
+
+	let showTemperatureMenu = false;
+	let temperatureStore: Writable<number>;
+	let temperatureMenuHeight: number;
+
+	const clickCookPanel = () => {
+	}
+
+	const mouseDown = (elem: HTMLDivElement) => {
+		elem.style.transform = "perspective(500px) translate3d(0px,0px,-10px)";
+	}
+	const mouseUp = (elem: HTMLDivElement) => {
+		elem.style.removeProperty("transform");
+	}
+	const clickProbe = (store: Writable<number>) => {
+		temperatureStore = store;
+		showTemperatureMenu = true;
+	}
+	const moveSettingsPanel = (event: MouseEvent) => {
+		movementEvent = true;
+		let mouseY = event.pageY;
+		if (mouseY <= window.innerHeight && mouseY >= 0) {
+			settingsPanelContainer.style.setProperty("--tw-translate-y", `${mouseY}px`);
+		}
+		settingsPanelContainer.addEventListener('mouseup', handleSettingsMouseUp, {once: true});
+		document.addEventListener('mouseleave', handleSettingsMouseUp, {once: true});
+	}
+	const handleSettingsClick = () => {
+		if (!movementEvent) {
+			movementEvent = false;
+			animateSettingsPanel = true;
+			showSettings = !showSettings;
+			console.debug(`${showSettings ? "Opening" : "Closing"} settings...`);
+			removeEventListener("mousemove", moveSettingsPanel);
+			setTimeout(() => animateSettingsPanel = false, 100);
+		}
+		
+	}
+	const handleSettingsMouseDown = () => {
+		movementEvent = false;
+		addEventListener("mousemove", moveSettingsPanel);
+	}
+	const handleSettingsMouseUp = (event: MouseEvent) => {
+		let mouseY = event.pageY;
+		animateSettingsPanel = true;
+		removeEventListener("mousemove", moveSettingsPanel);
+		console.debug(`Mouse-Y: ${mouseY}| Page height: ${window.innerHeight/2}`);
+		if (mouseY < window.innerHeight/2) {
+			showSettings = true;
+			console.debug("Opening settings...");
+		}
+		else {
+			showSettings = false;
+			console.debug("Closing settings...");
+		}
+		settingsPanelContainer.style.removeProperty("--tw-translate-y");
+		setTimeout(() => animateSettingsPanel = false, 100);
+	}
 </script>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+<Tailwind></Tailwind>
+<div class="fixed w-full h-[calc(100%+2rem)] 
+			transform-gpu z-40"
+	 class:translate-y-[calc(100%-2rem)]={!showSettings}
+	 class:translate-y-0={showSettings}
+	 class:transition-transform={animateSettingsPanel}
+	 bind:this={settingsPanelContainer}>
+	<div class="fixed items-center justify-start 
+				 h-8 w-full cursor-pointer z-50"
+		class:-top-8={!showSettings}
+		class:top-0={showSettings}
+		on:click={handleSettingsClick}
+		on:mousedown={handleSettingsMouseDown}>
+		<div class="settings-pull h-full w-full flex justify-center items-center"
+		class:settings-pull-closed={!showSettings}
+		class:settings-pull-opened={showSettings}>
+			<Icon data={faBars} scale={1.5}></Icon>
+		</div>
+	</div>
+	<div class="fixed w-full h-full top-0 left-0">
+		<SettingsPanel></SettingsPanel>
+	</div>
+</div>
+<main class="z-30">
+	<div class="grid">
+		<div class="grid-element selectable" class:cooking={cooking} bind:this={cookPanel} 
+			on:click="{clickCookPanel}" 
+			on:mousedown="{() => mouseDown(cookPanel)}" 
+			on:mouseup="{() => mouseUp(cookPanel)}">
+			<Icon data={faFire} scale={8} />
+			<div class="cooking-status" class:cooking={cooking}>{cooking ? "Cooking" : "Tap here to get cooking!"}</div>
+			<div class="heating-pixel" class:heating={heating}></div>
+		</div>
+		<div class="grid-element selectable" bind:this={probe1Panel} 
+			on:click="{() => clickProbe(probe1Target)}"
+			on:mousedown="{() => mouseDown(probe1Panel)}"
+			on:mouseup="{() => mouseUp(probe1Panel)}">
+			<ProbeGrid probeName="{$probe1Name}" probeTemp={probe1Temp} probeTarget="{$probe1Target}" />
+		</div>
+		<div class="grid-element selectable" bind:this={probe2Panel} 
+			on:click="{() => clickProbe(probe2Target)}"
+			on:mousedown="{() => mouseDown(probe2Panel)}"
+			on:mouseup="{() => mouseUp(probe2Panel)}">
+			<ProbeGrid probeName="{$probe2Name}" probeTemp={probe2Temp} probeTarget="{$probe2Target}" />
+		</div>
+		<div class="grid-element selectable" bind:this={probe3Panel} 
+			on:click="{() => clickProbe(probe3Target)}"
+			on:mousedown="{() => mouseDown(probe3Panel)}"
+			on:mouseup="{() => mouseUp(probe3Panel)}">
+			<ProbeGrid probeName="{$probe3Name}" probeTemp={probe3Temp} probeTarget="{$probe3Target}" />
+		</div>
+		<div class="grid-element selectable" bind:this={probe4Panel} 
+			on:click="{() => clickProbe(probe4Target)}"
+			on:mousedown="{() => mouseDown(probe4Panel)}"
+			on:mouseup="{() => mouseUp(probe4Panel)}">
+			<ProbeGrid probeName="{$probe4Name}" probeTemp={probe4Temp} probeTarget="{$probe4Target}" />
+		</div>
+		<div class="grid-element !cursor-default">
+			<div class="w-full h-full flex flex-col justify-center items-center !cursor-default">
+				<div class="text-sm">Chamber Temp</div>
+				<div class="text-2xl">{chamberTemp}</div>
+			</div>
+		</div>
+		<div class="grid-element selectable" bind:this={chamberPanel} 
+			on:click="{() => clickProbe(chamberTarget)}"
+			on:mousedown="{() => mouseDown(chamberPanel)}"
+			on:mouseup="{() => mouseUp(chamberPanel)}">
+			<div class="w-full h-full flex flex-col justify-center items-center">
+				<div class="text-sm">Chamber Target Temp</div>
+				<div class="text-2xl">{$chamberTarget}</div>
+			</div>
+		</div>
+	</div>
+	{#if showTemperatureMenu}
+	<TemperatureMenu bind:height={temperatureMenuHeight} storeValue={temperatureStore} on:save={() => showTemperatureMenu = false} />
+	{/if}
 </main>
 
-<style>
+<style lang="postcss">
+	:global(:root) {
+		--background-color: #222;
+		--foreground-color: #FFF;
+	}
+	:global(body) {
+		padding: 0px;
+		background-color: var(--background-color);
+	}
+	.settings-pull-closed {
+		@apply bg-gray-300 text-gray-600;
+		clip-path: polygon(45% 0, 40% 100%, 60% 100%, 55% 0);
+	}
+	.settings-pull-opened {
+		@apply bg-gray-600 text-gray-300;
+		clip-path: polygon(40% 0, 45% 100%, 55% 100%, 60% 0);
+	}
 	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
+		height: 100%;
+		width: 100%;
 	}
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
+	.grid {
+		@apply grid-cols-6 grid-rows-5;
+		display: grid;
+		background-color: var(--background-color);
+		height: 100%;
+		width: 100%;
+		padding: 0px;
+		margin: 0px;
+		gap: 0rem;
+		grid-template-areas:
+			'a a b b c c'
+			'a a b b c c'
+			'a a d d e e'
+			'a a d d e e'
+			'f f f g g g';
+		div {
+			background-color: var(--background-color);
+			user-select: none;
+			/* &.selectable:hover {
+				transform: perspective(500px) translate3d(0,0,10px);
+			} */
+		}
+		div:nth-child(1) {
+			grid-area: a;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			color: var(--foreground-color);
+			position: relative;
+			cursor: pointer;
+			.cooking-status {
+				margin-top: 1.5rem;
+			}
+			&.cooking {
+				animation: colorchange 5s linear 1s infinite;
+			}
+			.heating-pixel {
+				--pixel-size: 5px;
+				background-color: #FFF;
+				height: var(--pixel-size);
+				width: var(--pixel-size);
+				border-radius: 50%;
+				position: absolute;
+				bottom: 5px;
+				right: 5px;
+				transition: background-color 250ms ease-in-out transform 50ms ease-in-out;
+				&.heating {
+					background-color: rgb(255, 0, 0);
+				}
+			}
+		}
+		div:nth-child(2) {
+			grid-area: b;
+		}
+		div:nth-child(3) {
+			grid-area: c;
+		}
+		div:nth-child(4) {
+			grid-area: d;
+		}
+		div:nth-child(5) {
+			grid-area: e;
+		}
+		div:nth-child(6) {
+			grid-area: f;
+		}
+		div:nth-child(7) {
+			grid-area: g;
 		}
 	}
+	.grid-element {
+		border: 0.5px #555555b0 solid;
+	}
+	@keyframes colorchange
+    {
+      0%   {color: cyan;}
+      33%  {color: magenta;}
+      66%  {color: yellow;}
+      100% {color: cyan;}
+   }
 </style>

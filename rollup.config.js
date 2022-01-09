@@ -3,6 +3,9 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
+import autoPreprocess from 'svelte-preprocess';
+import css from 'rollup-plugin-css-only';
+import scss from 'rollup-plugin-scss';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -12,24 +15,40 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: 'public/build/bundle.js'
+		file: 'public/build/bundle.js',
 	},
 	plugins: [
 		svelte({
-			// enable run-time checks when not in production
-			dev: !production,
+			preprocess: autoPreprocess({
+				sourceMap: true,
+				postcss: {
+					// syntax: "postcss-scss",
+					plugins: [
+						require("tailwindcss/nesting"),
+						require("tailwindcss"),
+						require("autoprefixer"),
+					]
+				}
+			}),
+			compilerOptions: {
+				// enable run-time checks when not in production
+				dev: !production,
+			},
 			// we'll extract any component CSS out into
 			// a separate file - better for performance
-			css: css => {
-				css.write('public/build/bundle.css');
-			}
+			emitCss: true,
 		}),
-
+		css({output: "bundle.css"}),
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
 		// some cases you'll need additional configuration -
 		// consult the documentation for details:
 		// https://github.com/rollup/plugins/tree/master/packages/commonjs
+		// scss({
+		// 	sourceMap: true,
+		// 	prefix: `@use 'sass:math';
+		// 			 @use 'sass:color';`,
+		// }),
 		resolve({
 			browser: true,
 			dedupe: ['svelte']
