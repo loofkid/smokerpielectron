@@ -6,6 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import autoPreprocess from 'svelte-preprocess';
 import css from 'rollup-plugin-css-only';
 import scss from 'rollup-plugin-scss';
+import typescript from '@rollup/plugin-typescript';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -28,7 +29,7 @@ export default {
 						require("tailwindcss"),
 						require("autoprefixer"),
 					]
-				}
+				},
 			}),
 			compilerOptions: {
 				// enable run-time checks when not in production
@@ -37,7 +38,13 @@ export default {
 			// we'll extract any component CSS out into
 			// a separate file - better for performance
 			emitCss: true,
+			onwarn: (warning, handler) => {
+				const {code, frame} = warning;
+				if (code === "css-unused-selector") return;
+				handler(warning);
+			}
 		}),
+		typescript({ sourceMap: !production}),
 		css({output: "bundle.css"}),
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
@@ -57,11 +64,14 @@ export default {
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
-		!production && serve(),
+		// !production && serve(),
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
-		!production && livereload('public'),
+		!production && livereload({
+			watch: 'public',
+			delay: 750,
+		}),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify

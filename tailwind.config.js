@@ -1,7 +1,6 @@
 const production = !process.env.ROLLUP_WATCH;
-module.exports = {
-  mode: "jit",                                              
-  darkMode: false, // or 'media' or 'class'
+module.exports = {                                        
+  darkMode: "class", // or 'media' or 'class'
   theme: {
     extend: {
       colors: {
@@ -25,29 +24,12 @@ module.exports = {
           transLight: "rgba(250, 250, 250, 0.1)",
           transDark: "rgba(100, 100, 100, 0.2)",
         },
+        background: "#222",
+        foreground: "#FFF",
       },
     },
   },
-  variants: {
-    extend: {},
+  content: {
+    files: ['./src/**/*.{svelte,ts,js}', './public/index.html'],
   },
-  plugins: [],
-  future: {
-    purgeLayersByDefault: true,
-    removeDeprecatedGapUtilities: true,
-  },
-  purge: {
-    content: ["./**/*.html", "./**/*.svelte"],
-
-    whitelistPatterns: [/svelte-/, /ripple/, /w\-.\/7/],
-    whiteListPatternsChildren: [/svelte-/, /ripple/, /w\-.\/7/],
-    whitelist: ["html", "body", "stroke-primary", "mode-dark"],
-
-    defaultExtractor: (content) => [
-      ...tailwindExtractor(content),
-      // Match Svelte class: directives (https://github.com/tailwindlabs/tailwindcss/discussions/1731)
-      ...[...content.matchAll(/(?:class:)*([\w\d-/:%.]+)/gm)].map(([_match, group, ..._rest]) => group),
-    ],
-    keyframes: true,
-  }
 }

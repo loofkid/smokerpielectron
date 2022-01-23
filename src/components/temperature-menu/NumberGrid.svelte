@@ -6,7 +6,7 @@
     const dispatch = createEventDispatcher();
 </script>
 
-<div class="grid grid-cols-3 grid-rows-5 gap-3 h-full w-full mt-4">
+<div class="grid grid-cols-3 grid-rows-4 gap-3 h-full w-full">
     {#each numbers as number}
     <button class="w-full h-full 
                 bg-gray-500 text-gray-50 
@@ -14,7 +14,12 @@
                 transform-gpu" type="button"
                 on:click={() => dispatch("press", number)}>{number}</button>
     {/each}
-    <button class="w-full h-full col-span-2 
+    <button class="w-full h-full
+                bg-gray-500 text-gray-50 
+                text-2xl drop-shadow active:translate-y-0.5 
+                transform-gpu" type="button"
+                on:click={() => dispatch("cancel")}>Cancel</button>
+    <button class="w-full h-full
                 bg-gray-500 text-gray-50 
                 text-2xl drop-shadow active:translate-y-0.5 
                 transform-gpu" type="button"
@@ -23,5 +28,5 @@
                 bg-gray-500 text-gray-50 
                 text-2xl drop-shadow active:translate-y-0.5 
                 transform-gpu" type="button"
-                on:click={() => dispatch("press", "ok")}>OK</button>
+                on:click={() => dispatch("save")}>OK</button>
 </div>

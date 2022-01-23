@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ModalBackdrop from './ModalBackdrop.svelte';
-    import {Writable} from 'svelte/store';
+    import type {Writable} from 'svelte/store';
     import NumberInput from './NumberInput.svelte';
     import Icon from 'svelte-awesome';
     import { fade, fly } from 'svelte/transition';
@@ -45,11 +45,12 @@
         dispatcher("save");
     }
 </script>
+{#if open}
 <div transition:fade>
     <ModalBackdrop mouseDownHandler={bounceMenuIn} mouseUpHandler={bounceMenuOut}></ModalBackdrop>
 </div>
-<div transition:fly={{y: height}} class="temperature-menu" bind:offsetHeight={height} class:open={open} bind:this={temperatureMenu}>
-    <div class="number-input">
+<div transition:fly={{y: height}} class="temperature-menu w-[60%] h-[95%] bg-[#363636] z-[1000] absolute l-[20vw] t-[5vh] p-[10px]" bind:offsetHeight={height} class:open={open} bind:this={temperatureMenu}>
+    <div class="number-input w-full flex">
         <NumberInput bind:value={value}></NumberInput>
     </div>
     <div class="h-8 w-full">
@@ -59,38 +60,10 @@
         <NumberGrid on:press={numberPress}></NumberGrid>
     </div>
 </div>
+{/if}
 
 <style lang="postcss">
-    .temperature-menu {
-        width: 60%;
-        height: 95%;
-        background-color: #363636;
-        z-index: 1000;
-        position: absolute;
-        left: 20vw;
-        top: 5vh;
-        padding: 10px;
-        .number-input {
-            width: 100%;
-            display: flex;
-            button {
-                width: 52px;
-                height: 52px;
-                margin: 0px;
-                border-radius: 0px;
-                font-size: 1.5rem;
-                justify-content: center;
-                align-items: center;
-                border-left: none;
-                border-right: 2px groove #FFF;
-                border-top: 2px groove #FFF;
-                border-bottom: 2px groove #FFF;
-                box-sizing: border-box;
-                display: flex;
-                background-color: transparent;
-                color: #FFF;
-                cursor: pointer;
-            }
-        }
+    .temperature-menu .number-input button {
+        @apply w-[52px] h-[52px] m-0 rounded-none text-2xl justify-center items-center border-white box-border flex bg-transparent text-white cursor-pointer;
     }
 </style>

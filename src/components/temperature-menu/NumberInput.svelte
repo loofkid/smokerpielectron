@@ -30,7 +30,7 @@
     }
 </script>
 
-<div class="flex flex-row w-full h-14 shadow-2xl">
+<div class="flex flex-row w-full h-14 shadow-2xl overflow-hidden">
     <button type="button" class="bg-transparent text-white w-14 flex 
                                 outline-none focus:outline-none active:outline-none
                                 box-border h-full cursor-pointer rounded-r-none active:shadow-inner
@@ -68,21 +68,8 @@
 </div>
 
 <style lang="postcss">
-    div {
-        button {
-            :first-child {
-                height: 100%;
-                width: 100%;
-            }
-            :active {
-                transform: perspective(500px) translate3d(0px,0px,-10px);
-            }
-        }
-        input {
-            &::-webkit-outer-spin-button,
-            &::-webkit-inner-spin-button {
-                -webkit-appearance: none;
-            }
-        } 
+    div input::-webkit-outer-spin-button,
+    div input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
     }
 </style>

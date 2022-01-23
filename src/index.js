@@ -2,7 +2,7 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
 // Live Reload
-require('electron-reload')(__dirname, {
+require('electron-reload')(path.join(__dirname, 'public'), {
   electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
   awaitWriteFinish: true
 });
@@ -15,6 +15,8 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+app.commandLine.appendSwitch('touch-events', 'enabled');
+
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -22,11 +24,13 @@ const createWindow = () => {
     height: 480,
     webPreferences: {
       nodeIntegration: true,
-      preload: path.join(__dirname, 'preload.ts'),
+      preload: path.join(__dirname, 'preload.js'),
     },
     frame: process.platform == 'linux' ? false : true,
     resizable: false,
     movable: true,
+    fullscreen: process.platform == 'linux',
+    
   });
 
   // and load the index.html of the app.
@@ -35,6 +39,7 @@ const createWindow = () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 };
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
