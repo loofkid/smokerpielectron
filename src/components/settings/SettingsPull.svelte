@@ -24,7 +24,7 @@
         class:bg-gray-600={settingsShown}
         class:text-gray-300={settingsShown}
         class:[clip-path:polygon(40%_0,_45%_100%,_55%_100%,_60%_0)]={settingsShown}
-        on:click on:mouseDown on:touchStart
+        on:click on:mouseDown={mouseDown} on:touchStart={touchStart}
     >
     <!-- for tailwind [clip-path:polygon(45%_0,_40%_100%,_60%_100%,_55%_0)] [clip-path:polygon(40%_0,_45%_100%,_55%_100%,_60%_0)] -->
         <Icon data={faBars} scale={1.5}></Icon>
