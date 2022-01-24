@@ -1,7 +1,15 @@
 <script lang="ts">
 	import { Icon } from 'svelte-awesome';
     import { faBars } from '@fortawesome/free-solid-svg-icons'
-    export let settingsShown;
+    export let settingsShown: boolean;
+
+    const touchStart = (event: TouchEvent) => {
+        console.log("touchEvent", event);
+    }
+
+    const mouseDown = (event: MouseEvent) => {
+        console.log("mouseEvent", event);
+    }
 </script>
 
 <div id="settingsPull" class="fixed items-center justify-start h-8 w-full cursor-pointer z-50 drop-shadow"

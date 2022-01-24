@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, screen } = require('electron');
 const path = require('path');
 
 // Live Reload
@@ -15,13 +15,14 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-app.commandLine.appendSwitch('touch-events', 'enabled');
+// app.commandLine.appendSwitch('touch-events', 'enabled');
 
 const createWindow = () => {
   // Create the browser window.
+  const {width, height} = screen.getPrimaryDisplay().workAreaSize
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 480,
+    width: width,
+    height: height,
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js'),
@@ -30,7 +31,7 @@ const createWindow = () => {
     resizable: false,
     movable: true,
     fullscreen: process.platform == 'linux',
-    
+    kiosk: true,
   });
 
   // and load the index.html of the app.
