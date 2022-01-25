@@ -5,7 +5,6 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import autoPreprocess from 'svelte-preprocess';
 import css from 'rollup-plugin-css-only';
-import scss from 'rollup-plugin-scss';
 import typescript from '@rollup/plugin-typescript';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -70,7 +69,7 @@ export default {
 		// browser on changes when not in production
 		!production && livereload({
 			watch: 'public',
-			delay: 750,
+			delay: 3000,
 		}),
 
 		// If we're building for production (npm run build
@@ -78,7 +77,8 @@ export default {
 		production && terser()
 	],
 	watch: {
-		clearScreen: false
+		clearScreen: false,
+		buildDelay: 3000,
 	}
 };
 

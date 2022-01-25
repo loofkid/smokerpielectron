@@ -3,8 +3,16 @@
     import { faBars } from '@fortawesome/free-solid-svg-icons'
     export let settingsShown: boolean;
 
+    let settingsPull: HTMLDivElement;
+    export let y = 0;
+
     const touchStart = (event: TouchEvent) => {
         console.log("touchEvent", event);
+        y = event.targetTouches[0].pageY;
+        settingsPull.addEventListener("touchmove", touchMove);
+    }
+    const touchMove = (event: TouchEvent) => {
+        event.preventDefault();
     }
 
     const mouseDown = (event: MouseEvent) => {
@@ -24,7 +32,7 @@
         class:bg-gray-600={settingsShown}
         class:text-gray-300={settingsShown}
         class:[clip-path:polygon(40%_0,_45%_100%,_55%_100%,_60%_0)]={settingsShown}
-        on:click on:mouseDown={mouseDown} on:touchStart={touchStart}
+        on:click on:mousedown={mouseDown} on:touchstart={touchStart} bind:this={settingsPull}
     >
     <!-- for tailwind [clip-path:polygon(45%_0,_40%_100%,_60%_100%,_55%_0)] [clip-path:polygon(40%_0,_45%_100%,_55%_100%,_60%_0)] -->
         <Icon data={faBars} scale={1.5}></Icon>

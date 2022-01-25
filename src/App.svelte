@@ -5,9 +5,12 @@
 	import { startup } from './scripts/startup';
 	import MainScreen from './components/main/MainScreen.svelte';
     import SettingsMenu from './components/settings/SettingsMenu.svelte';
+    import ConnectionModal from './components/connection/ConnectionModal.svelte';
 
     let showTemperaturePanel = false;
     let temperaturePanelProbe: Probe;
+
+    let connected = false;
 
     onMount(async () => {
         await startup();
@@ -30,6 +33,11 @@
 {#if showTemperaturePanel}
 <div id="temperaturePanel" class="z-[55] h-full w-full absolute top-0 left-0">
     <TemperaturePanel bind:show={showTemperaturePanel} probe={temperaturePanelProbe}></TemperaturePanel>
+</div>
+{/if}
+{#if !connected}
+<div id="connectionPanel" class="z-[55] h-full w-full absolute top-0 left-0 flex justify-center align-center">
+    <ConnectionModal {connected}></ConnectionModal>
 </div>
 {/if}
 
